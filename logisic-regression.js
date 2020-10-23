@@ -73,7 +73,6 @@ class LogisticRegression {
     //generates an extra column so we can use the matrix multiplication
     //ones([shape]) shape = features row, one column,    1 for concatenation axis
     features = tf.tensor(features);
-
     //we have to reapply mean and variance for our test set if it is second time
     if (this.mean && this.variance) {
       features = features.sub(this.mean).div(this.variance.pow(0.5));
@@ -90,10 +89,12 @@ class LogisticRegression {
   standardize(features) {
     const { mean, variance } = tf.moments(features, 0);
 
+    const filler = variance.cast('bool').logicalNot().cast("float32");
+    //in case the variance is 0 we will use this playaround to check if it is 0, turn it into 1 and replace all 0 features with ones
     this.mean = mean;
-    this.variance = variance;
+    this.variance = variance.add(filler);
 
-    return features.sub(mean).div(variance.pow(0.5));
+    return features.sub(mean).div(this.variance.pow(0.5));
   }
   //vectorized solution
   recordCost() {
