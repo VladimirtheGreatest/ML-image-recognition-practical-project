@@ -108,21 +108,21 @@ class LogisticRegression {
   
       const termOne = this.labels
       .transpose()
-      .matMul(guesses.log());
+      .matMul(guesses.add(1e-7).log());
   
       const termTwo = this.labels
       .mul(-1)
       .add(1)
       .transpose()
-      .matMul(guesses.mul(-1).add(1).log())
-  
+      .matMul(guesses.mul(-1).add(1).add(1e-7).log()) // 1x10 ^ -7 = 0.00000001 MAKE SURE NEVER TAKE A LOG THAT IS 0  so we dont end up with infinite value
+      //this arbitrary change is here just to prevent that infinite bullshit and it has only small effect on the results
       return termOne.add(termTwo)
       .div(this.features.shape[0])
       .mul(-1)
       .get(0, 0);
     });
     //vectorized cost entropy formula instead of mean squaared error
-    
+
     this.costHistory.unshift(cost);
   }
 
