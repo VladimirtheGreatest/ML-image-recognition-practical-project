@@ -40,7 +40,7 @@ class LogisticRegression {
       for (let j = 0; j < batchQuantity; j++) {
         const startIndex = j * this.options.batchSize;
         const batchSize = this.options.batchSize;
-
+  //tf tidy, garbage collector saves memory
         this.weights = tf.tidy(() => {
           const featureSlice = this.features.slice(
             [startIndex, 0],
@@ -100,26 +100,29 @@ class LogisticRegression {
   }
   //vectorized solution
   recordCost() {
+    //tf tidy, garbage collector saves memory
+    const cost = tf.tidy(() => {
+      const guesses = this.features.
+      matMul(this.weights)
+      .sigmoid();
+  
+      const termOne = this.labels
+      .transpose()
+      .matMul(guesses.log());
+  
+      const termTwo = this.labels
+      .mul(-1)
+      .add(1)
+      .transpose()
+      .matMul(guesses.mul(-1).add(1).log())
+  
+      return termOne.add(termTwo)
+      .div(this.features.shape[0])
+      .mul(-1)
+      .get(0, 0);
+    });
     //vectorized cost entropy formula instead of mean squaared error
-    const guesses = this.features.
-    matMul(this.weights)
-    .sigmoid();
-
-    const termOne = this.labels
-    .transpose()
-    .matMul(guesses.log());
-
-    const termTwo = this.labels
-    .mul(-1)
-    .add(1)
-    .transpose()
-    .matMul(guesses.mul(-1).add(1).log())
-
-    const cost = termOne.add(termTwo)
-    .div(this.features.shape[0])
-    .mul(-1)
-    .get(0, 0);
-
+    
     this.costHistory.unshift(cost);
   }
 
