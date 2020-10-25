@@ -33,7 +33,7 @@ const regression = new LogisticRegression(features, labels, {
 });
 
 regression.train();
-
+debugger;
 const testMnistData = mnist.testing(0, 1000);
 
 const testFeatures = testMnistData.images.values.map((image) =>
